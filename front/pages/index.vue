@@ -1,5 +1,5 @@
 <template>
-  <Tutorial />
+  <CameraComponent />
 </template>
 
 <script lang="ts">
