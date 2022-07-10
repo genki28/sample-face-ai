@@ -6,6 +6,8 @@ import fs from 'fs'
 import {
   CreateCollectionCommand,
   IndexFacesCommand,
+  ListCollectionsCommand,
+  ListFacesCommand,
   RekognitionClient,
 } from '@aws-sdk/client-rekognition'
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
@@ -88,17 +90,34 @@ app.post('/create-collection', async (req, res) => {
 })
 
 app.post('/add-face-to-collection', async (req, res) => {
+  const collectionName = req.body.collection_name
   const filePath = (req as FileRequest).files.file.path
-  const name = (req as FileRequest).files.file.name
+  const fileName = (req as FileRequest).files.file.name
   const blob = fs.readFileSync(filePath)
-  const data = await sendImageToS3(name, blob)
-  console.log(data)
+  const data = await sendImageToS3(fileName, blob)
 
   const rekognitionClient = new RekognitionClient({
     region: AWSRegion,
     credentials: awsCredentials,
   })
-  rekognitionClient.send(new IndexFacesCommand())
+  try {
+    const collectionData = await rekognitionClient.send(
+      new IndexFacesCommand({
+        Image: {
+          S3Object: {
+            Bucket: process.env.AWS_BUCKET || '',
+            Name: fileName,
+            Version: data.VersionId,
+          },
+        },
+        CollectionId: collectionName,
+      })
+    )
+    console.log(collectionData)
+    res.send('Success').status(200)
+  } catch (e) {
+    res.send(`Failed: ${e}`).status(500)
+  }
 })
 
 const sendImageToS3 = async (fileName: string, blob: Buffer) => {
@@ -127,6 +146,20 @@ app.post('/face-rekognition-by-aws', (req, res) => {
     // とりあえず仮で最後の1件を保存しておく
     fs.copyFileSync(filePath, path.join(uploadDir, '/image.png'))
   }
+})
+
+app.get('/face-collection-index', async (req, res) => {
+  const rekognitionClient = new RekognitionClient({
+    region: AWSRegion,
+    credentials: awsCredentials,
+  })
+
+  const response = await rekognitionClient.send(
+    new ListCollectionsCommand({ MaxResults: 3 })
+  )
+  console.log(response)
+
+  res.json(response).status(200)
 })
 
 app.listen(8080, () => {
