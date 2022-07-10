@@ -10,17 +10,19 @@
       muted
     />
     <canvas id="canvas" ref="canvas" width="500" height="500"></canvas>
-    <ul>
+    <!-- <ul>
       <li class="capture" v-for="(c, key) in captures" :key="key">
         <img :src="c" height="50" alt="" />
       </li>
-    </ul>
+    </ul> -->
+    <button @click="sendImage">顔認識する</button>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from '@nuxtjs/composition-api'
 import { onBeforeMount } from 'vue'
+import axios from 'axios'
 
 export default defineComponent({
   name: 'CameraComponent',
@@ -47,18 +49,42 @@ export default defineComponent({
       }
     })
 
-    setInterval(() => {
+    // setInterval(() => {
+    //   if (canvas.value && video.value) {
+    //     canvas.value.getContext('2d')?.drawImage(video.value, 0, 0, 500, 500)
+    //     captures.value.push(canvas.value.toDataURL('image/png'))
+    //   }
+    // }, 5000)
+    const sendImage = () => {
       if (canvas.value && video.value) {
+        // blob化
         canvas.value.getContext('2d')?.drawImage(video.value, 0, 0, 500, 500)
-        captures.value.push(canvas.value.toDataURL('image/png'))
+        const url = canvas.value.toDataURL('image/png')
+        const bin = window.atob(url.split(',')[1])
+        const buffer = new Uint8Array(bin.length)
+        for (let i = 0; i < bin.length; i++) {
+          buffer[i] = bin.charCodeAt(i)
+        }
+        const blob = new Blob([buffer.buffer], { type: 'image/png' })
+
+        // データ送信
+        const data = new FormData()
+        data.append('file', blob)
+
+        axios.post('localhost:8080/send-gcp', data, {
+          headers: {
+            'content-type': 'multipart/form-data',
+          },
+        })
       }
-    }, 5000)
+    }
 
     return {
       captureStream,
       captures,
       canvas,
       video,
+      sendImage,
     }
   },
 })
