@@ -8,14 +8,11 @@
       :srcObject.prop="captureStream"
       autoplay
       muted
+      width="500"
+      height="500"
     />
     <canvas id="canvas" ref="canvas" width="500" height="500"></canvas>
-    <!-- <ul>
-      <li class="capture" v-for="(c, key) in captures" :key="key">
-        <img :src="c" height="50" alt="" />
-      </li>
-    </ul> -->
-    <button @click="sendImage">顔認識する</button>
+    <button @click="faceRekognitionByAws">AWSで顔認証する</button>
   </div>
 </template>
 
@@ -30,7 +27,6 @@ export default defineComponent({
     const captureStream = ref<MediaStream | undefined>()
     const canvas = ref<HTMLCanvasElement>()
     const video = ref<HTMLVideoElement>()
-    const captures = ref<string[]>([])
 
     onBeforeMount(async () => {
       try {
@@ -46,10 +42,9 @@ export default defineComponent({
     // setInterval(() => {
     //   if (canvas.value && video.value) {
     //     canvas.value.getContext('2d')?.drawImage(video.value, 0, 0, 500, 500)
-    //     captures.value.push(canvas.value.toDataURL('image/png'))
     //   }
     // }, 5000)
-    const sendImage = () => {
+    const faceRekognitionByAws = () => {
       if (canvas.value && video.value) {
         // blob化
         canvas.value.getContext('2d')?.drawImage(video.value, 0, 0, 500, 500)
@@ -64,9 +59,8 @@ export default defineComponent({
         // データ送信
         const data = new FormData()
         data.append('file', blob)
-        console.log('確認')
 
-        axios.post('http://localhost:8080/send-gcp', data, {
+        axios.post('http://localhost:8080/face-rekognition-by-aws', data, {
           headers: {
             'content-type': 'multipart/form-data',
           },
@@ -76,10 +70,9 @@ export default defineComponent({
 
     return {
       captureStream,
-      captures,
       canvas,
       video,
-      sendImage,
+      faceRekognitionByAws,
     }
   },
 })
