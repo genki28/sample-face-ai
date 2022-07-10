@@ -17,8 +17,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from '@nuxtjs/composition-api'
-import { onBeforeMount } from 'vue'
+import { defineComponent, ref, onBeforeMount } from '@nuxtjs/composition-api'
 import axios from 'axios'
 
 export default defineComponent({
