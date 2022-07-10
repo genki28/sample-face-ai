@@ -41,12 +41,6 @@ export default defineComponent({
       } catch (e) {
         console.error(e)
       }
-
-      if (captureStream.value) {
-        setInterval(() => {
-          console.log(captureStream.value)
-        }, 5000)
-      }
     })
 
     // setInterval(() => {
@@ -70,8 +64,9 @@ export default defineComponent({
         // データ送信
         const data = new FormData()
         data.append('file', blob)
+        console.log('確認')
 
-        axios.post('localhost:8080/send-gcp', data, {
+        axios.post('http://localhost:8080/send-gcp', data, {
           headers: {
             'content-type': 'multipart/form-data',
           },
