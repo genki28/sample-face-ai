@@ -9,6 +9,7 @@ import {
   ListCollectionsCommand,
   ListFacesCommand,
   RekognitionClient,
+  SearchFacesByImageCommand,
 } from '@aws-sdk/client-rekognition'
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { config } from 'dotenv'
@@ -140,12 +141,27 @@ const sendImageToS3 = async (fileName: string, blob: Buffer) => {
   }
 }
 
-app.post('/face-rekognition-by-aws', (req, res) => {
+app.post('/face-rekognition-by-aws', async (req, res) => {
   const filePath = (req as FileRequest).files.file.path
   if (fs.existsSync(filePath)) {
     // とりあえず仮で最後の1件を保存しておく
     fs.copyFileSync(filePath, path.join(uploadDir, '/image.png'))
   }
+
+  const rekognitionClient = new RekognitionClient({
+    region: AWSRegion,
+    credentials: awsCredentials,
+  })
+  const response = await rekognitionClient.send(
+    new SearchFacesByImageCommand({
+      CollectionId: 'sample-rekognition',
+      Image: {
+        Bytes: fs.readFileSync(filePath),
+      },
+    })
+  )
+  console.log(`Response: ${JSON.stringify(response)}`)
+  res.send('Success').status(200)
 })
 
 app.get('/face-collection-index', async (req, res) => {
@@ -159,6 +175,21 @@ app.get('/face-collection-index', async (req, res) => {
   )
   console.log(response)
 
+  res.json(response).status(200)
+})
+
+app.get('/face-collection-image-index', async (req, res) => {
+  const rekognitionClient = new RekognitionClient({
+    region: AWSRegion,
+    credentials: awsCredentials,
+  })
+
+  const response = await rekognitionClient.send(
+    new ListFacesCommand({
+      CollectionId: 'sample-rekognition',
+    })
+  )
+  console.log(response)
   res.json(response).status(200)
 })
 

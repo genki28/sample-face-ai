@@ -8,8 +8,6 @@
       :srcObject.prop="captureStream"
       autoplay
       muted
-      width="500"
-      height="500"
     />
     <canvas id="canvas" ref="canvas" width="500" height="500"></canvas>
     <button @click="faceRekognitionByAws">AWSで顔認証する</button>
