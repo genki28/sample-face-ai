@@ -10,7 +10,7 @@
       muted
     />
     <canvas id="canvas" ref="canvas" width="500" height="500"></canvas>
-    <button @click="faceRekognitionByAws">AWSで顔認証する</button>
+    <!-- <button @click="faceRekognitionByAws">AWSで顔認証する</button> -->
   </div>
 </template>
 
@@ -36,11 +36,6 @@ export default defineComponent({
       }
     })
 
-    // setInterval(() => {
-    //   if (canvas.value && video.value) {
-    //     canvas.value.getContext('2d')?.drawImage(video.value, 0, 0, 500, 500)
-    //   }
-    // }, 5000)
     const faceRekognitionByAws = () => {
       if (canvas.value && video.value) {
         // blob化
@@ -64,12 +59,14 @@ export default defineComponent({
         })
       }
     }
+    setInterval(() => {
+      faceRekognitionByAws()
+    }, 1000)
 
     return {
       captureStream,
       canvas,
       video,
-      faceRekognitionByAws,
     }
   },
 })

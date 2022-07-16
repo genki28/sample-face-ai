@@ -5,6 +5,7 @@ import cors from 'cors'
 import fs from 'fs'
 import {
   CreateCollectionCommand,
+  DeleteFacesCommand,
   IndexFacesCommand,
   ListCollectionsCommand,
   ListFacesCommand,
@@ -66,8 +67,6 @@ app.get('/', (req, res) => {
 
 // 顔認識関連
 app.post('/create-collection', async (req, res) => {
-  console.log(req.body.collection_name)
-  console.log('region:', AWSRegion)
   // 本当は、lambdaとかでやること？？
   // Set up
   const rekognitionClient = new RekognitionClient({
@@ -85,6 +84,27 @@ app.post('/create-collection', async (req, res) => {
     console.log(`Success: `, data)
 
     res.send(`Success`).status(200)
+  } catch (e) {
+    res.send(`Failed: ${e}`).status(500)
+  }
+})
+
+app.post('/delete-face-to-collection', async (req, res) => {
+  const rekognitionClient = new RekognitionClient({
+    region: AWSRegion,
+    credentials: awsCredentials,
+  })
+  const collectionName = req.body.collection_name
+  const faceId = req.body.face_id
+
+  try {
+    const data = await rekognitionClient.send(
+      new DeleteFacesCommand({
+        CollectionId: collectionName,
+        FaceIds: [faceId],
+      })
+    )
+    res.send('Success').status(200)
   } catch (e) {
     res.send(`Failed: ${e}`).status(500)
   }
@@ -152,15 +172,17 @@ app.post('/face-rekognition-by-aws', async (req, res) => {
     region: AWSRegion,
     credentials: awsCredentials,
   })
+  const collectionName = 'sample-rekognition'
+  // const collectionName = 'test-rekognition'
   const response = await rekognitionClient.send(
     new SearchFacesByImageCommand({
-      CollectionId: 'sample-rekognition',
+      CollectionId: collectionName,
       Image: {
         Bytes: fs.readFileSync(filePath),
       },
     })
   )
-  console.log(`Response: ${JSON.stringify(response)}`)
+  console.log(`Response:`, response)
   res.send('Success').status(200)
 })
 
