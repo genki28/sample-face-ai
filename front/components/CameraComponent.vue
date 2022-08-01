@@ -50,9 +50,10 @@ export default defineComponent({
 
         // データ送信
         const data = new FormData()
-        data.append('file', blob)
+        data.append('image', blob)
+        data.append('storeId', 'hoge')
 
-        axios.post('http://localhost:8080/face-rekognition-by-aws', data, {
+        axios.post(`/v1/auth`, data, {
           headers: {
             'content-type': 'multipart/form-data',
           },

@@ -1,4 +1,8 @@
-export default {
+import { NuxtConfig } from '@nuxt/types'
+import { config as dotenvConfig } from 'dotenv'
+dotenvConfig()
+
+const nuxtConfig: NuxtConfig = {
   // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
   ssr: false,
 
@@ -45,9 +49,21 @@ export default {
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
     // Workaround to avoid enforcing hard-coded localhost:3000: https://github.com/nuxt-community/axios-module/issues/308
-    baseURL: process.env.API_BASE_URL,
+    // baseURL: process.env.API_BASE_URL,
+    proxy: true,
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {},
+
+  // publicRuntimeConfig: {
+  //   axios: {
+  //     browserBaseURL: process.env.BROWSER_BASE_URL,
+  //   },
+  // },
+  proxy: {
+    '/v1/': 'http://localhost:18080/',
+  },
 }
+
+export default nuxtConfig
