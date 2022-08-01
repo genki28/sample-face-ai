@@ -61,6 +61,7 @@ const nuxtConfig: NuxtConfig = {
   //     browserBaseURL: process.env.BROWSER_BASE_URL,
   //   },
   // },
+  // TODO: 一旦、ハードコード
   proxy: {
     '/v1/': 'http://localhost:18080/',
   },
