@@ -9,7 +9,13 @@
       autoplay
       muted
     />
-    <canvas id="canvas" ref="canvas" width="500" height="500"></canvas>
+    <canvas
+      id="canvas"
+      ref="canvas"
+      width="500"
+      height="500"
+      style="visibility: hidden"
+    ></canvas>
     <!-- <button @click="faceRekognitionByAws">AWSで顔認証する</button> -->
   </div>
 </template>
@@ -36,7 +42,7 @@ export default defineComponent({
       }
     })
 
-    const faceRekognitionByAws = () => {
+    const faceRekognitionByAws = async () => {
       if (canvas.value && video.value) {
         // blob化
         canvas.value.getContext('2d')?.drawImage(video.value, 0, 0, 500, 500)
@@ -50,18 +56,31 @@ export default defineComponent({
 
         // データ送信
         const data = new FormData()
-        data.append('image', blob)
-        data.append('storeId', 'hoge')
+        data.append('file', blob)
 
-        axios.post(`/v1/auth`, data, {
-          headers: {
-            'content-type': 'multipart/form-data',
-          },
-        })
+        try {
+          const result = await axios.post(
+            `http://localhost:8080/face-rekognition-by-aws`,
+            data,
+            {
+              headers: {
+                'content-type': 'multipart/form-data',
+              },
+            }
+          )
+          console.log(result)
+          if (result.status === 200) {
+            alert('顔認証に成功しました。')
+          } else {
+            alert(`エラーが発生しました: ${result}`)
+          }
+        } catch (error) {
+          alert(`エラーが発生しました: ${error}`)
+        }
       }
     }
-    setInterval(() => {
-      faceRekognitionByAws()
+    setInterval(async () => {
+      await faceRekognitionByAws()
     }, 1000)
 
     return {

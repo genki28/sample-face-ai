@@ -49,8 +49,7 @@ const nuxtConfig: NuxtConfig = {
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
     // Workaround to avoid enforcing hard-coded localhost:3000: https://github.com/nuxt-community/axios-module/issues/308
-    // baseURL: process.env.API_BASE_URL,
-    proxy: true,
+    baseURL: process.env.API_BASE_URL,
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
@@ -62,9 +61,9 @@ const nuxtConfig: NuxtConfig = {
   //   },
   // },
   // TODO: 一旦、ハードコード
-  proxy: {
-    '/v1/': 'http://localhost:18080/',
-  },
+  // proxy: {
+  //   '/v1/': 'http://localhost:18080/',
+  // },
 }
 
 export default nuxtConfig

@@ -174,16 +174,21 @@ app.post('/face-rekognition-by-aws', async (req, res) => {
   })
   const collectionName = 'sample-rekognition'
   // const collectionName = 'test-rekognition'
-  const response = await rekognitionClient.send(
-    new SearchFacesByImageCommand({
-      CollectionId: collectionName,
-      Image: {
-        Bytes: fs.readFileSync(filePath),
-      },
-    })
-  )
-  console.log(`Response:`, response)
-  res.send('Success').status(200)
+  try {
+    const response = await rekognitionClient.send(
+      new SearchFacesByImageCommand({
+        CollectionId: collectionName,
+        Image: {
+          Bytes: fs.readFileSync(filePath),
+        },
+      })
+    )
+    console.log(`Response:`, JSON.stringify(response))
+    res.status(200).send('Success')
+  } catch (e) {
+    console.error(`failed: ${e}`)
+    res.status(500).send(`failed: ${e}`)
+  }
 })
 
 app.get('/face-collection-index', async (req, res) => {
